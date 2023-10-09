@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Redux</title>
+        </head>
+        <body>
+            <div id="root">
+              <button onclick="store.dispatch( decrement() )">-</button>
+              <span id="counter"></span>
+              <button onclick="store.dispatch( increment() )">+</button>
+            </div>
+            
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/redux/4.2.1/redux.js"></script>
+
+            <script>
+                // action types 
+                const DECREMENT = 'DECREMENT';
+                const INCREMENT = 'INCREMENT';
+
+                // action creators
+                const decrement = () => {
+                    return {
+                        type: 'DECREMENT'
+                    };
+                };
+
+                const increment = () => {
+                    return {
+                        type: 'INCREMENT'
+                    };
+                };
+                // initial state 
+                const lsState = localStorage.getItem('state') ;
+                const initialState = lsState !== null ? JSON.parse(lsState ) : {
+                    value: 0
+                };
+
+                // reducer - it will be called when the store receieves an action ( an action is dispatched)
+                // REDUCER MUST BE A 'pure function '
+                // it must not use global function itself 
+                // it uses only recieve arguments 
+                // it will not change recieve arguments 
+                // the function must be a deterministic 
+
+                const counterReducer = ( state = initialState, action ) => {
+                    console.log( 'reducer called ');
+                    console.log(  action= 'action ');
+                    console.log(  state= 'state ');
+                    
+
+                    switch( action.type ) {
+                        case 'DECREMENT':
+                           return {
+                              value: state.value - 1 
+                           };
+                        case 'INCREMENT':
+                           return {
+                              value: state.value + 1 
+                           };
+                        default:
+                            return state ;
+                    }
+
+                }; 
+
+                // store 
+                // action ( { type:'@redux/INIT'})
+                 // a middleware is a function that returns the function and the function is return the function 
+
+                const logger = store  => next =>  action => {
+                    
+                            console.log('action dispatched ') ;  
+                            console.log('current state = ', store.getState() ) ;
+                            console.log('action = ' , action ) ;
+                };
+
+                const storeInLocalStorage = store => next => action => {
+                    next(action ); // let the next middleware  / store get the action 
+
+                    // code after call to next() is called after state updates 
+                    console.log( 'updates state = ' , store.getState() ) ; 
+                    localStorage.setItem( ' state ' , JSON.stringify( store.getState) () ) ;  
+
+                }
+                const store = Redux.createStore( counterReducer /* initialState */ , Redux.applyMiddleware ( logger , storeInLocalStorage)) ; 
+
+                const render = () => {
+
+                        const { value } = store.getState();
+                        document.getElementById( 'counter ').innerText = value;
+                };
+
+                render() ;
+                   store.subscribe ( render ) ;
+                   // this is middleware type for using some optional things automatically in redux we will call this as 
+                   // middleware 
+                   // for example when we login we want to make the ajax call automatically to load the page or to make the cart visible to the user 
+                   // middleware is a something where we have some extra logic 
+                   // a middleware is a function that returns the function and the function is return the function 
+
+            </script>
+        </body>
+</html>
+  
